@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.*;
+import java.util.Random;
 
 import javax.swing.JFrame;
 
@@ -18,6 +20,7 @@ public class Game extends Canvas implements Runnable {
 	public static int width = 300;
 	public static int height = width / 16 * 9;
 	public static int scale = 3;
+	public static String title = "TowerDefenseGame";
 	
 	private Thread thread;
 	private JFrame frame;
@@ -54,12 +57,40 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	public void run(){
+		
+		long lastTime = System.nanoTime();
+		long timer = System.currentTimeMillis();
+		final double ns = 1000000000.0 / 60.0;  //Nanosecond to second conversion
+		double delta = 0;
+		int frames = 0;
+		int updates = 0;
+		
 		while(running){
+			long now = System.nanoTime();
+			delta += (now - lastTime) / ns;
+			lastTime = now;
+					
 			//Run at a maximum of 60 times per second
-			update();
+			while (delta >= 1){
+				update();
+				updates++;
+				delta--;
+			}
+						
 			//Run as fast as the computer allows
 			render();
+			frames++;
+			
+			if(System.currentTimeMillis() - timer > 1000){
+				frame.setTitle(title + " | FPS: " + frames);
+				timer += 1000;
+				frames = 0;
+				updates = 0;
+				
+				
+			}
 		}
+		stop();
 	}
 	
 	public void update(){
@@ -72,10 +103,19 @@ public class Game extends Canvas implements Runnable {
 			createBufferStrategy(3);
 			return;
 		}
+		
+		screen.clear();
+		
+		screen.render();
+		
+		//Sets the pixels array to the values of the pixels from the screen
+		for(int i = 0; i < pixels.length; i++){
+			pixels[i] = screen.pixels[i];
+		}
+		
 		Graphics g = bs.getDrawGraphics();
 		//Begin graphics displays
-		g.setColor(Color.black);
-		g.fillRect(0, 0, getWidth(), getHeight());
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		//End graphics displays
 		g.dispose();
 		bs.show();
@@ -85,7 +125,7 @@ public class Game extends Canvas implements Runnable {
 	public static void main(String[] args){
 		Game game = new Game();
 		game.frame.setResizable(false);
-		game.frame.setTitle("Game");
+		game.frame.setTitle(title);
 		game.frame.add(game);
 		game.frame.pack();
 		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
