@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.*;
 import java.util.Random;
+import java.util.logging.Level;
 
 import javax.swing.JFrame;
 
@@ -28,6 +29,7 @@ public class Game extends Canvas implements Runnable {
 	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 	private Screen screen;
+	private Level level;
 	private Keyboard key;
 	
 	public Game(){
@@ -37,6 +39,7 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(width, height);		
 		frame = new JFrame();		
 		key = new Keyboard();
+		level = new LevelOne(64, 64);
 		
 		addKeyListener(key);
 	}
@@ -108,8 +111,7 @@ public class Game extends Canvas implements Runnable {
 		}
 		
 		screen.clear();
-		
-		screen.render();
+		level.render(screen);
 		
 		//Sets the pixels array to the values of the pixels from the screen
 		for(int i = 0; i < pixels.length; i++){
