@@ -6,13 +6,15 @@ import level.tile.Tile;
 
 public class Screen {
 
-	private int width;
-	private int height;
+	public int width;
+	public int height;
 	public final int MAP_SIZE = 64;
 	public final int MAP_SIZE_MASK = MAP_SIZE - 1;
 	
 	public int[] tiles = new int[64*64];
 	public int[] pixels;
+	
+	public int xOffset, yOffset;
 	
 	private Random random = new Random();
 	
@@ -29,14 +31,7 @@ public class Screen {
 		
 	}
 	
-	public void render(){
-		for(int y = 0; y < height; y++){
-			for(int x = 0; x < width; x++){
-				pixels[x + y * width] = Sprite.grass.pixels[(x & 15) + (y & 15) * 16];
-				
-			}
-		}
-	}
+	
 	
 	public void clear(){
 		for(int i = 0; i < pixels.length; i++){
@@ -45,6 +40,8 @@ public class Screen {
 	}
 	
 	public void renderTile(int xp, int yp, Tile tile){
+		xp -= xOffset;
+		yp -= yOffset;
 		for( int y = 0; y < tile.sprite.SIZE; y++){
 			int ya = y + yp;
 			for( int x = 0; x < tile.sprite.SIZE; x++){
@@ -54,5 +51,10 @@ public class Screen {
 			}
 			
 		}
+	}
+	
+	public void setOffset( int xOffset, int yOffset){
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
 	}
 }
